@@ -54,7 +54,6 @@ const NumberFrequency = () => {
             />
             <Bar 
               dataKey="frequency" 
-              fill="#8b5cf6"
               radius={[4, 4, 0, 0]}
               fill={(entry) => getBarColor(entry.status)}
             />
