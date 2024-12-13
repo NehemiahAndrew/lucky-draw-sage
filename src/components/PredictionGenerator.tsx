@@ -17,36 +17,54 @@ const PredictionGenerator = () => {
 
   const generatePrediction = () => {
     let numbers = new Set<number>();
+    const hotNumbers = [7, 11, 23, 27, 33, 42, 47]; // Example hot numbers
+    const coldNumbers = [2, 9, 13, 19, 31, 39, 44]; // Example cold numbers
+    const recentPatterns = [
+      [1, 10, 20, 30, 40, 45], // Example patterns from recent draws
+      [5, 15, 25, 35, 40, 45],
+      [3, 13, 23, 33, 43, 48]
+    ];
     
-    // Different strategies for number generation
+    const addNumberWithProbability = (num: number, probability: number) => {
+      if (Math.random() < probability && numbers.size < 6) {
+        numbers.add(num);
+      }
+    };
+
     switch(strategy) {
       case "hot":
-        // Bias towards higher frequency numbers
+        // Use hot numbers with higher probability
+        hotNumbers.forEach(num => addNumberWithProbability(num, 0.7));
         while(numbers.size < 6) {
           const num = Math.floor(Math.random() * 49) + 1;
-          if (Math.random() < 0.7) { // 70% chance to pick from hot numbers
-            numbers.add(num > 40 ? num : num + 10);
-          } else {
-            numbers.add(num);
-          }
+          numbers.add(num);
         }
         break;
       
       case "cold":
-        // Bias towards lower frequency numbers
+        // Use cold numbers with higher probability
+        coldNumbers.forEach(num => addNumberWithProbability(num, 0.7));
         while(numbers.size < 6) {
           const num = Math.floor(Math.random() * 49) + 1;
-          if (Math.random() < 0.7) { // 70% chance to pick from cold numbers
-            numbers.add(num < 10 ? num + 5 : num - 5);
-          } else {
-            numbers.add(num);
-          }
+          numbers.add(num);
+        }
+        break;
+      
+      case "pattern":
+        // Use numbers based on recent patterns
+        const randomPattern = recentPatterns[Math.floor(Math.random() * recentPatterns.length)];
+        randomPattern.forEach(num => addNumberWithProbability(num, 0.5));
+        while(numbers.size < 6) {
+          const num = Math.floor(Math.random() * 49) + 1;
+          numbers.add(num);
         }
         break;
       
       case "balanced":
       default:
-        // Even distribution with some patterns
+        // Balanced approach using all strategies
+        hotNumbers.forEach(num => addNumberWithProbability(num, 0.3));
+        coldNumbers.forEach(num => addNumberWithProbability(num, 0.3));
         while(numbers.size < 6) {
           const num = Math.floor(Math.random() * 49) + 1;
           numbers.add(num);
@@ -58,7 +76,7 @@ const PredictionGenerator = () => {
     
     toast({
       title: "New Prediction Generated",
-      description: `Using ${strategy} strategy`,
+      description: `Using ${strategy} strategy with enhanced probability calculations`,
     });
   };
 
@@ -76,6 +94,7 @@ const PredictionGenerator = () => {
             <SelectItem value="balanced">Balanced</SelectItem>
             <SelectItem value="hot">Hot Numbers</SelectItem>
             <SelectItem value="cold">Cold Numbers</SelectItem>
+            <SelectItem value="pattern">Pattern Based</SelectItem>
           </SelectContent>
         </Select>
         
