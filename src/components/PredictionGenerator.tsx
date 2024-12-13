@@ -9,6 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/components/ui/use-toast";
+import { calculateProbabilities } from '@/utils/statistics';
 
 const PredictionGenerator = () => {
   const [prediction, setPrediction] = useState<number[]>([]);
@@ -17,13 +18,17 @@ const PredictionGenerator = () => {
 
   const generatePrediction = () => {
     let numbers = new Set<number>();
-    const hotNumbers = [7, 11, 23, 27, 33, 42, 47]; // Example hot numbers
-    const coldNumbers = [2, 9, 13, 19, 31, 39, 44]; // Example cold numbers
-    const recentPatterns = [
-      [1, 10, 20, 30, 40, 45], // Example patterns from recent draws
-      [5, 15, 25, 35, 40, 45],
-      [3, 13, 23, 33, 43, 48]
-    ];
+    const mockData = Array.from({ length: 49 }, (_, i) => ({
+      number: i + 1,
+      frequency: Math.floor(Math.random() * 50) + 1,
+      status: '',
+      lastDrawn: Math.floor(Math.random() * 10) + 1,
+      winningProbability: 0
+    }));
+
+    const processedData = calculateProbabilities(mockData);
+    const hotNumbers = processedData.filter(item => item.status === 'hot').map(item => item.number);
+    const coldNumbers = processedData.filter(item => item.status === 'cold').map(item => item.number);
     
     const addNumberWithProbability = (num: number, probability: number) => {
       if (Math.random() < probability && numbers.size < 6) {
@@ -33,7 +38,6 @@ const PredictionGenerator = () => {
 
     switch(strategy) {
       case "hot":
-        // Use hot numbers with higher probability
         hotNumbers.forEach(num => addNumberWithProbability(num, 0.7));
         while(numbers.size < 6) {
           const num = Math.floor(Math.random() * 49) + 1;
@@ -42,7 +46,6 @@ const PredictionGenerator = () => {
         break;
       
       case "cold":
-        // Use cold numbers with higher probability
         coldNumbers.forEach(num => addNumberWithProbability(num, 0.7));
         while(numbers.size < 6) {
           const num = Math.floor(Math.random() * 49) + 1;
@@ -51,9 +54,10 @@ const PredictionGenerator = () => {
         break;
       
       case "pattern":
-        // Use numbers based on recent patterns
-        const randomPattern = recentPatterns[Math.floor(Math.random() * recentPatterns.length)];
-        randomPattern.forEach(num => addNumberWithProbability(num, 0.5));
+        const recentPatterns = processedData
+          .filter(item => item.lastDrawn <= 3)
+          .map(item => item.number);
+        recentPatterns.forEach(num => addNumberWithProbability(num, 0.5));
         while(numbers.size < 6) {
           const num = Math.floor(Math.random() * 49) + 1;
           numbers.add(num);
@@ -62,7 +66,6 @@ const PredictionGenerator = () => {
       
       case "balanced":
       default:
-        // Balanced approach using all strategies
         hotNumbers.forEach(num => addNumberWithProbability(num, 0.3));
         coldNumbers.forEach(num => addNumberWithProbability(num, 0.3));
         while(numbers.size < 6) {

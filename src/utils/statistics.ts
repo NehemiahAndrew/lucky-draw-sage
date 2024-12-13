@@ -30,12 +30,85 @@ export const calculateStatistics = (data: FrequencyData[]) => {
     .slice(-5)
     .reverse()
     .map(item => item.number);
+
+  // Calculate median frequency
+  const medianFrequency = calculateMedian(data.map(item => item.frequency));
+  
+  // Calculate mode frequency
+  const modeFrequency = calculateMode(data.map(item => item.frequency));
+  
+  // Calculate quartiles
+  const frequencies = data.map(item => item.frequency).sort((a, b) => a - b);
+  const q1 = calculateQuartile(frequencies, 0.25);
+  const q3 = calculateQuartile(frequencies, 0.75);
+  const iqr = q3 - q1;
     
   return {
     mostFrequent,
     leastFrequent,
     averageFrequency,
     variance,
-    standardDeviation
+    standardDeviation,
+    medianFrequency,
+    modeFrequency,
+    quartiles: { q1, q3, iqr }
   };
+};
+
+const calculateMedian = (numbers: number[]): number => {
+  const sorted = [...numbers].sort((a, b) => a - b);
+  const middle = Math.floor(sorted.length / 2);
+  
+  if (sorted.length % 2 === 0) {
+    return (sorted[middle - 1] + sorted[middle]) / 2;
+  }
+  
+  return sorted[middle];
+};
+
+const calculateMode = (numbers: number[]): number => {
+  const frequency: { [key: number]: number } = {};
+  let maxFreq = 0;
+  let mode = numbers[0];
+
+  numbers.forEach(num => {
+    frequency[num] = (frequency[num] || 0) + 1;
+    if (frequency[num] > maxFreq) {
+      maxFreq = frequency[num];
+      mode = num;
+    }
+  });
+
+  return mode;
+};
+
+const calculateQuartile = (numbers: number[], percentile: number): number => {
+  const position = (numbers.length - 1) * percentile;
+  const base = Math.floor(position);
+  const rest = position - base;
+  
+  if (numbers[base + 1] !== undefined) {
+    return numbers[base] + rest * (numbers[base + 1] - numbers[base]);
+  }
+  
+  return numbers[base];
+};
+
+export const calculateProbabilities = (data: FrequencyData[]): FrequencyData[] => {
+  const totalDraws = data.reduce((sum, item) => sum + item.frequency, 0);
+  
+  return data.map(item => ({
+    ...item,
+    winningProbability: item.frequency / totalDraws,
+    status: determineNumberStatus(item.frequency, data)
+  }));
+};
+
+const determineNumberStatus = (frequency: number, data: FrequencyData[]): string => {
+  const stats = calculateStatistics(data);
+  const threshold = stats.standardDeviation;
+  
+  if (frequency > stats.averageFrequency + threshold) return 'hot';
+  if (frequency < stats.averageFrequency - threshold) return 'cold';
+  return 'neutral';
 };

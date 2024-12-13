@@ -1,32 +1,26 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Card } from '@/components/ui/card';
-import { calculateStatistics } from '@/utils/statistics';
+import { calculateStatistics, calculateProbabilities } from '@/utils/statistics';
 
 const NumberFrequency = () => {
-  // Enhanced mock frequency data with more statistical information
-  const frequencyData = Array.from({ length: 49 }, (_, i) => ({
+  // Generate mock frequency data
+  const rawData = Array.from({ length: 49 }, (_, i) => ({
     number: i + 1,
     frequency: Math.floor(Math.random() * 50) + 1,
-    status: Math.random() > 0.7 ? 'hot' : Math.random() > 0.4 ? 'neutral' : 'cold',
-    lastDrawn: Math.floor(Math.random() * 10) + 1, // Days since last drawn
-    winningProbability: Math.random()
+    status: '',
+    lastDrawn: Math.floor(Math.random() * 10) + 1,
+    winningProbability: 0
   }));
 
+  // Process data with enhanced statistics
+  const frequencyData = calculateProbabilities(rawData);
   const stats = calculateStatistics(frequencyData);
-
-  const getBarColor = (status: string) => {
-    switch(status) {
-      case 'hot': return '#ef4444';
-      case 'cold': return '#3b82f6';
-      default: return '#8b5cf6';
-    }
-  };
 
   // Process the data to include color information
   const processedData = frequencyData.map(item => ({
     ...item,
-    fill: getBarColor(item.status)
+    fill: item.status === 'hot' ? '#ef4444' : item.status === 'cold' ? '#3b82f6' : '#8b5cf6'
   }));
 
   return (
@@ -57,9 +51,11 @@ const NumberFrequency = () => {
         <Card className="p-4">
           <h3 className="text-sm font-medium mb-2">Statistical Summary</h3>
           <div className="text-sm space-y-1">
-            <p>Average Frequency: {stats.averageFrequency.toFixed(2)}</p>
-            <p>Standard Deviation: {stats.standardDeviation.toFixed(2)}</p>
-            <p>Variance: {stats.variance.toFixed(2)}</p>
+            <p>Mean: {stats.averageFrequency.toFixed(2)}</p>
+            <p>Median: {stats.medianFrequency.toFixed(2)}</p>
+            <p>Mode: {stats.modeFrequency.toFixed(2)}</p>
+            <p>Standard Dev: {stats.standardDeviation.toFixed(2)}</p>
+            <p>IQR: {stats.quartiles.iqr.toFixed(2)}</p>
           </div>
         </Card>
       </div>
@@ -99,9 +95,9 @@ const NumberFrequency = () => {
               }}
             />
             <Bar 
-              dataKey="frequency" 
-              radius={[4, 4, 0, 0]}
+              dataKey="frequency"
               fill="#8b5cf6"
+              radius={[4, 4, 0, 0]}
             />
           </BarChart>
         </ResponsiveContainer>
