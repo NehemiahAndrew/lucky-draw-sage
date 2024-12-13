@@ -18,6 +18,12 @@ const NumberFrequency = () => {
     }
   };
 
+  // Process the data to include color information
+  const processedData = frequencyData.map(item => ({
+    ...item,
+    fill: getBarColor(item.status)
+  }));
+
   return (
     <div className="space-y-4">
       <div className="flex justify-end space-x-4 mb-4">
@@ -33,7 +39,7 @@ const NumberFrequency = () => {
       
       <div className="h-[400px]">
         <ResponsiveContainer width="100%" height="100%">
-          <BarChart data={frequencyData}>
+          <BarChart data={processedData}>
             <CartesianGrid strokeDasharray="3 3" />
             <XAxis dataKey="number" />
             <YAxis />
@@ -55,7 +61,7 @@ const NumberFrequency = () => {
             <Bar 
               dataKey="frequency" 
               radius={[4, 4, 0, 0]}
-              fill={(entry) => getBarColor(entry.status)}
+              fill="#8b5cf6"
             />
           </BarChart>
         </ResponsiveContainer>
