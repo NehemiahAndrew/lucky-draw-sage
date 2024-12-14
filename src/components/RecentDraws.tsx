@@ -3,11 +3,18 @@ import { Card } from '@/components/ui/card';
 import { format } from 'date-fns';
 
 const RecentDraws = () => {
-  // Enhanced mock data with more details
+  // Enhanced mock data with ball colors
   const recentDraws = [
     { 
       id: 1, 
-      numbers: [7, 12, 23, 34, 41, 45], 
+      numbers: [
+        { value: 7, color: 'red' },
+        { value: 12, color: 'green' },
+        { value: 23, color: 'blue' },
+        { value: 34, color: 'red' },
+        { value: 41, color: 'green' },
+        { value: 45, color: 'blue' }
+      ],
       drawTime: new Date(2024, 0, 20, 15, 0),
       sum: 162,
       oddCount: 4,
@@ -15,7 +22,14 @@ const RecentDraws = () => {
     },
     { 
       id: 2, 
-      numbers: [3, 15, 22, 31, 38, 47], 
+      numbers: [
+        { value: 3, color: 'blue' },
+        { value: 15, color: 'red' },
+        { value: 22, color: 'green' },
+        { value: 31, color: 'blue' },
+        { value: 38, color: 'red' },
+        { value: 47, color: 'green' }
+      ],
       drawTime: new Date(2024, 0, 20, 14, 0),
       sum: 156,
       oddCount: 3,
@@ -23,13 +37,33 @@ const RecentDraws = () => {
     },
     { 
       id: 3, 
-      numbers: [5, 11, 25, 33, 42, 49], 
+      numbers: [
+        { value: 5, color: 'green' },
+        { value: 11, color: 'blue' },
+        { value: 25, color: 'red' },
+        { value: 33, color: 'green' },
+        { value: 42, color: 'blue' },
+        { value: 49, color: 'red' }
+      ],
       drawTime: new Date(2024, 0, 20, 13, 0),
       sum: 165,
       oddCount: 5,
       evenCount: 1
     },
   ];
+
+  const getBallColor = (color: string) => {
+    switch (color) {
+      case 'red':
+        return 'bg-red-500';
+      case 'green':
+        return 'bg-green-500';
+      case 'blue':
+        return 'bg-blue-500';
+      default:
+        return 'bg-gray-500';
+    }
+  };
 
   return (
     <div className="space-y-4">
@@ -49,13 +83,9 @@ const RecentDraws = () => {
               {draw.numbers.map((num, idx) => (
                 <span
                   key={idx}
-                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium ${
-                    num % 2 === 0 
-                      ? 'bg-blue-500 text-white' 
-                      : 'bg-red-500 text-white'
-                  }`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium text-white ${getBallColor(num.color)}`}
                 >
-                  {num}
+                  {num.value}
                 </span>
               ))}
             </div>
