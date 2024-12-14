@@ -10,10 +10,24 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 export const DataScraper = () => {
   const { toast } = useToast();
   const [url, setUrl] = useState('');
+  const [apiKey, setApiKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [scrapedData, setScrapedData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const handleApiKeySubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (apiKey) {
+      FirecrawlService.saveApiKey(apiKey);
+      toast({
+        title: "Success",
+        description: "API key saved successfully",
+        duration: 3000,
+      });
+      setApiKey('');
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -23,6 +37,12 @@ export const DataScraper = () => {
     setScrapedData(null);
     
     try {
+      const savedApiKey = FirecrawlService.getApiKey();
+      if (!savedApiKey) {
+        setError("Please set your API key first");
+        return;
+      }
+
       console.log('Starting scrape for URL:', url);
       const result = await FirecrawlService.crawlWebsite(url);
       
@@ -60,6 +80,24 @@ export const DataScraper = () => {
 
   return (
     <div className="w-full max-w-md mx-auto p-6">
+      <form onSubmit={handleApiKeySubmit} className="space-y-4 mb-8">
+        <div className="space-y-2">
+          <label htmlFor="apiKey" className="text-sm font-medium">
+            Firecrawl API Key
+          </label>
+          <Input
+            id="apiKey"
+            type="password"
+            value={apiKey}
+            onChange={(e) => setApiKey(e.target.value)}
+            placeholder="Enter your Firecrawl API key"
+          />
+        </div>
+        <Button type="submit" disabled={!apiKey}>
+          Save API Key
+        </Button>
+      </form>
+
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <label htmlFor="url" className="text-sm font-medium">
