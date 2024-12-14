@@ -34,11 +34,12 @@ export class FirecrawlService {
   static async crawlWebsite(url: string): Promise<{ success: boolean; error?: string; data?: any }> {
     const apiKey = this.getApiKey();
     if (!apiKey) {
+      console.error('No API key found');
       return { success: false, error: 'API key not found' };
     }
 
     try {
-      console.log('Making crawl request to Firecrawl API');
+      console.log('Starting crawl for URL:', url);
       if (!this.firecrawlApp) {
         this.firecrawlApp = new FirecrawlApp({ apiKey });
       }
@@ -47,12 +48,14 @@ export class FirecrawlService {
         limit: 100,
         scrapeOptions: {
           formats: ['markdown', 'html'],
-          cssSelectors: {
-            drawNumbers: '.draw-numbers',
-            drawTime: '.draw-time',
-            frequency: '.frequency-data',
-            streaks: '.streak-data'
-          }
+          waitForSelector: '.game-container', // Wait for games to load
+          includeSelectors: [
+            '.game-container',
+            '.game-title',
+            '.game-details',
+            '.game-stats'
+          ],
+          timeout: 30000 // 30 seconds timeout
         }
       }) as CrawlResponse;
 

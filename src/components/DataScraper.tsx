@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { FirecrawlService } from '@/utils/FirecrawlService';
 import { Card } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const DataScraper = () => {
   const { toast } = useToast();
@@ -12,13 +13,17 @@ export const DataScraper = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [scrapedData, setScrapedData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setProgress(0);
+    setError(null);
+    setScrapedData(null);
     
     try {
+      console.log('Starting scrape for URL:', url);
       const result = await FirecrawlService.crawlWebsite(url);
       
       if (result.success) {
@@ -29,6 +34,7 @@ export const DataScraper = () => {
           duration: 3000,
         });
       } else {
+        setError(result.error || "Failed to scrape website");
         toast({
           title: "Error",
           description: result.error || "Failed to scrape website",
@@ -37,10 +43,12 @@ export const DataScraper = () => {
         });
       }
     } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : "Failed to scrape website";
       console.error('Error scraping website:', error);
+      setError(errorMessage);
       toast({
         title: "Error",
-        description: "Failed to scrape website",
+        description: errorMessage,
         variant: "destructive",
         duration: 3000,
       });
@@ -55,14 +63,14 @@ export const DataScraper = () => {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
           <label htmlFor="url" className="text-sm font-medium">
-            49ja Website URL
+            Website URL
           </label>
           <Input
             id="url"
             type="url"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="Enter the 49ja website URL"
+            placeholder="Enter the website URL"
             required
           />
         </div>
@@ -79,6 +87,12 @@ export const DataScraper = () => {
           {isLoading ? "Scraping Data..." : "Start Scraping"}
         </Button>
       </form>
+
+      {error && (
+        <Alert variant="destructive" className="mt-4">
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+      )}
 
       {scrapedData && (
         <Card className="mt-6 p-4">
