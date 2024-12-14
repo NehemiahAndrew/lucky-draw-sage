@@ -48,8 +48,7 @@ export class FirecrawlService {
         limit: 100,
         scrapeOptions: {
           formats: ['markdown', 'html'],
-          timeout: 30000, // 30 seconds timeout
-          waitUntil: 'networkidle0' // Wait until network is idle
+          timeout: 30000 // 30 seconds timeout
         }
       }) as CrawlResponse;
 
