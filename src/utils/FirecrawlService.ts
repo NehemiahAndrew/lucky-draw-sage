@@ -49,12 +49,7 @@ export class FirecrawlService {
         scrapeOptions: {
           formats: ['markdown', 'html'],
           timeout: 30000, // 30 seconds timeout
-          selectors: [
-            '.game-container',
-            '.game-title',
-            '.game-details',
-            '.game-stats'
-          ]
+          waitUntil: 'networkidle0' // Wait until network is idle
         }
       }) as CrawlResponse;
 
