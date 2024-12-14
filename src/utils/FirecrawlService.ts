@@ -48,14 +48,13 @@ export class FirecrawlService {
         limit: 100,
         scrapeOptions: {
           formats: ['markdown', 'html'],
-          waitForSelector: '.game-container', // Wait for games to load
-          includeSelectors: [
+          timeout: 30000, // 30 seconds timeout
+          selectors: [
             '.game-container',
             '.game-title',
             '.game-details',
             '.game-stats'
-          ],
-          timeout: 30000 // 30 seconds timeout
+          ]
         }
       }) as CrawlResponse;
 
