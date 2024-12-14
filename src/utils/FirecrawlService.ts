@@ -47,7 +47,7 @@ export class FirecrawlService {
         limit: 100,
         scrapeOptions: {
           formats: ['markdown', 'html'],
-          selectors: {
+          cssSelectors: {
             drawNumbers: '.draw-numbers',
             drawTime: '.draw-time',
             frequency: '.frequency-data',
