@@ -96,16 +96,25 @@ const calculateQuartile = (numbers: number[], percentile: number): number => {
 
 export const calculateProbabilities = (data: FrequencyData[]): FrequencyData[] => {
   const totalDraws = data.reduce((sum, item) => sum + item.frequency, 0);
+  const stats = calculateStatistics(data);
   
-  return data.map(item => ({
-    ...item,
-    winningProbability: item.frequency / totalDraws,
-    status: determineNumberStatus(item.frequency, data)
-  }));
+  return data.map(item => {
+    // Enhanced probability calculation based on game patterns
+    const frequencyWeight = item.frequency / totalDraws;
+    const recencyWeight = Math.exp(-item.lastDrawn / 10); // Exponential decay for last drawn
+    const streakAdjustment = item.lastDrawn < 3 ? 0.8 : 1.2; // Adjust for recent appearances
+    
+    const winningProbability = (frequencyWeight + recencyWeight) * streakAdjustment;
+    
+    return {
+      ...item,
+      winningProbability,
+      status: determineNumberStatus(item.frequency, stats)
+    };
+  });
 };
 
-const determineNumberStatus = (frequency: number, data: FrequencyData[]): string => {
-  const stats = calculateStatistics(data);
+const determineNumberStatus = (frequency: number, stats: ReturnType<typeof calculateStatistics>): string => {
   const threshold = stats.standardDeviation;
   
   if (frequency > stats.averageFrequency + threshold) return 'hot';
