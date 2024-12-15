@@ -22,24 +22,49 @@ export class FirecrawlService {
   private static firecrawlApp: FirecrawlApp | null = null;
 
   static saveApiKey(apiKey: string): void {
+    if (!apiKey || apiKey.trim() === '') {
+      throw new Error('API key cannot be empty');
+    }
     localStorage.setItem(this.API_KEY_STORAGE_KEY, apiKey);
     this.firecrawlApp = new FirecrawlApp({ apiKey });
     console.log('API key saved successfully');
   }
 
   static getApiKey(): string | null {
-    return localStorage.getItem(this.API_KEY_STORAGE_KEY);
+    const apiKey = localStorage.getItem(this.API_KEY_STORAGE_KEY);
+    if (!apiKey) {
+      console.warn('No API key found in localStorage');
+      return null;
+    }
+    return apiKey;
+  }
+
+  static async validateApiKey(apiKey: string): Promise<boolean> {
+    try {
+      const app = new FirecrawlApp({ apiKey });
+      // Make a minimal test request
+      const testResponse = await app.crawlUrl('https://example.com', {
+        limit: 1,
+        scrapeOptions: {
+          formats: ['html']
+        }
+      });
+      return testResponse.success;
+    } catch (error) {
+      console.error('API key validation failed:', error);
+      return false;
+    }
   }
 
   static async crawlWebsite(url: string): Promise<{ success: boolean; error?: string; data?: any }> {
     const apiKey = this.getApiKey();
     if (!apiKey) {
       console.error('No API key found');
-      return { success: false, error: 'API key not found' };
+      return { success: false, error: 'API key not found. Please set your API key first.' };
     }
 
     try {
-      console.log('Starting crawl for URL:', url);
+      console.log('Initializing crawl for URL:', url);
       if (!this.firecrawlApp) {
         this.firecrawlApp = new FirecrawlApp({ apiKey });
       }
@@ -67,9 +92,16 @@ export class FirecrawlService {
       };
     } catch (error) {
       console.error('Error during crawl:', error);
+      const errorMessage = error instanceof Error ? error.message : 'Failed to connect to Firecrawl API';
+      if (errorMessage.includes('401')) {
+        return {
+          success: false,
+          error: 'Invalid API key. Please check your API key and try again.'
+        };
+      }
       return { 
         success: false, 
-        error: error instanceof Error ? error.message : 'Failed to connect to Firecrawl API' 
+        error: errorMessage
       };
     }
   }
