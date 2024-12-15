@@ -6,51 +6,17 @@ import { Progress } from "@/components/ui/progress";
 import { FirecrawlService } from '@/utils/FirecrawlService';
 import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ApiKeyForm } from './ApiKeyForm';
+import { useFirecrawlKey } from '@/hooks/useFirecrawlKey';
 
 export const DataScraper = () => {
   const { toast } = useToast();
+  const { getApiKey } = useFirecrawlKey();
   const [url, setUrl] = useState('');
-  const [apiKey, setApiKey] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [scrapedData, setScrapedData] = useState<any>(null);
   const [error, setError] = useState<string | null>(null);
-  const [isValidatingKey, setIsValidatingKey] = useState(false);
-
-  const handleApiKeySubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!apiKey) return;
-
-    setIsValidatingKey(true);
-    try {
-      const isValid = await FirecrawlService.validateApiKey(apiKey);
-      if (isValid) {
-        FirecrawlService.saveApiKey(apiKey);
-        toast({
-          title: "Success",
-          description: "API key validated and saved successfully",
-          duration: 3000,
-        });
-        setApiKey('');
-      } else {
-        toast({
-          title: "Error",
-          description: "Invalid API key. Please check and try again.",
-          variant: "destructive",
-          duration: 3000,
-        });
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to validate API key",
-        variant: "destructive",
-        duration: 3000,
-      });
-    } finally {
-      setIsValidatingKey(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -60,14 +26,13 @@ export const DataScraper = () => {
     setScrapedData(null);
     
     try {
-      const savedApiKey = FirecrawlService.getApiKey();
-      if (!savedApiKey) {
+      const apiKey = getApiKey();
+      if (!apiKey) {
         setError("Please set your API key first");
         return;
       }
 
-      console.log('Starting scrape for URL:', url);
-      const result = await FirecrawlService.crawlWebsite(url);
+      const result = await FirecrawlService.crawlWebsite(apiKey, url);
       
       if (result.success) {
         setScrapedData(result.data);
@@ -103,23 +68,7 @@ export const DataScraper = () => {
 
   return (
     <div className="w-full max-w-md mx-auto p-6">
-      <form onSubmit={handleApiKeySubmit} className="space-y-4 mb-8">
-        <div className="space-y-2">
-          <label htmlFor="apiKey" className="text-sm font-medium">
-            Firecrawl API Key
-          </label>
-          <Input
-            id="apiKey"
-            type="password"
-            value={apiKey}
-            onChange={(e) => setApiKey(e.target.value)}
-            placeholder="Enter your Firecrawl API key"
-          />
-        </div>
-        <Button type="submit" disabled={!apiKey || isValidatingKey}>
-          {isValidatingKey ? "Validating..." : "Save API Key"}
-        </Button>
-      </form>
+      <ApiKeyForm />
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">

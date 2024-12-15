@@ -18,62 +18,18 @@ interface CrawlStatusResponse {
 type CrawlResponse = CrawlStatusResponse | ErrorResponse;
 
 export class FirecrawlService {
-  private static API_KEY_STORAGE_KEY = 'firecrawl_api_key';
   private static firecrawlApp: FirecrawlApp | null = null;
 
-  static saveApiKey(apiKey: string): void {
-    if (!apiKey || apiKey.trim() === '') {
-      throw new Error('API key cannot be empty');
-    }
-    localStorage.setItem(this.API_KEY_STORAGE_KEY, apiKey);
-    this.firecrawlApp = new FirecrawlApp({ apiKey });
-    console.log('API key saved successfully');
-  }
-
-  static getApiKey(): string | null {
-    const apiKey = localStorage.getItem(this.API_KEY_STORAGE_KEY);
-    if (!apiKey) {
-      console.warn('No API key found in localStorage');
-      return null;
-    }
-    return apiKey;
-  }
-
-  static async validateApiKey(apiKey: string): Promise<boolean> {
-    try {
-      const app = new FirecrawlApp({ apiKey });
-      // Make a minimal test request
-      const testResponse = await app.crawlUrl('https://example.com', {
-        limit: 1,
-        scrapeOptions: {
-          formats: ['html']
-        }
-      });
-      return testResponse.success;
-    } catch (error) {
-      console.error('API key validation failed:', error);
-      return false;
-    }
-  }
-
-  static async crawlWebsite(url: string): Promise<{ success: boolean; error?: string; data?: any }> {
-    const apiKey = this.getApiKey();
-    if (!apiKey) {
-      console.error('No API key found');
-      return { success: false, error: 'API key not found. Please set your API key first.' };
-    }
-
+  static async crawlWebsite(apiKey: string, url: string): Promise<{ success: boolean; error?: string; data?: any }> {
     try {
       console.log('Initializing crawl for URL:', url);
-      if (!this.firecrawlApp) {
-        this.firecrawlApp = new FirecrawlApp({ apiKey });
-      }
+      this.firecrawlApp = new FirecrawlApp({ apiKey });
 
       const crawlResponse = await this.firecrawlApp.crawlUrl(url, {
         limit: 100,
         scrapeOptions: {
           formats: ['markdown', 'html'],
-          timeout: 30000 // 30 seconds timeout
+          timeout: 30000
         }
       }) as CrawlResponse;
 
