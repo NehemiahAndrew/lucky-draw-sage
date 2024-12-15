@@ -9,11 +9,41 @@ import {
 } from "@/components/ui/table";
 
 const ResultsTable = () => {
-  // Mock data for initial display
+  // Mock data with color information
   const mockResults = [
-    { date: '2024-01-20', numbers: [7, 12, 23, 34, 41, 45] },
-    { date: '2024-01-19', numbers: [3, 15, 22, 31, 38, 47] },
-    { date: '2024-01-18', numbers: [5, 11, 25, 33, 42, 49] },
+    { 
+      date: '2024-01-20', 
+      numbers: [
+        { value: 47, color: 'blue' },
+        { value: 29, color: 'blue' },
+        { value: 27, color: 'green' },
+        { value: 4, color: 'red' },
+        { value: 14, color: 'blue' },
+        { value: 22, color: 'red' }
+      ]
+    },
+    { 
+      date: '2024-01-19', 
+      numbers: [
+        { value: 20, color: 'blue' },
+        { value: 47, color: 'blue' },
+        { value: 39, color: 'green' },
+        { value: 40, color: 'red' },
+        { value: 31, color: 'red' },
+        { value: 43, color: 'red' }
+      ]
+    },
+    { 
+      date: '2024-01-18', 
+      numbers: [
+        { value: 46, color: 'red' },
+        { value: 30, color: 'green' },
+        { value: 44, color: 'blue' },
+        { value: 7, color: 'red' },
+        { value: 29, color: 'blue' },
+        { value: 27, color: 'green' }
+      ]
+    },
   ];
 
   return (
@@ -22,7 +52,7 @@ const ResultsTable = () => {
         <TableHeader>
           <TableRow>
             <TableHead>Date</TableHead>
-            <TableHead>Winning Numbers</TableHead>
+            <TableHead>Numbers & Colors</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -34,9 +64,12 @@ const ResultsTable = () => {
                   {result.numbers.map((num, idx) => (
                     <span
                       key={idx}
-                      className="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center text-sm"
+                      className={`w-8 h-8 rounded-full text-white flex items-center justify-center text-sm
+                        ${num.color === 'red' ? 'bg-red-500' : 
+                          num.color === 'blue' ? 'bg-blue-500' : 
+                          'bg-green-500'}`}
                     >
-                      {num}
+                      {num.value}
                     </span>
                   ))}
                 </div>
