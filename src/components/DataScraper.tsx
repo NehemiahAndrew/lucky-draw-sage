@@ -8,6 +8,7 @@ import { Card } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { ApiKeyForm } from './ApiKeyForm';
 import { useFirecrawlKey } from '@/hooks/useFirecrawlKey';
+import { Loader2 } from "lucide-react";
 
 export const DataScraper = () => {
   const { toast } = useToast();
@@ -86,7 +87,13 @@ export const DataScraper = () => {
         </div>
         
         {isLoading && (
-          <Progress value={progress} className="w-full" />
+          <div className="space-y-4">
+            <Progress value={progress} className="w-full" />
+            <div className="flex items-center justify-center gap-2">
+              <Loader2 className="h-4 w-4 animate-spin" />
+              <span>Scraping data...</span>
+            </div>
+          </div>
         )}
         
         <Button
@@ -107,9 +114,28 @@ export const DataScraper = () => {
       {scrapedData && (
         <Card className="mt-6 p-4">
           <h3 className="text-lg font-semibold mb-2">Scraped Data</h3>
-          <pre className="bg-gray-100 p-2 rounded overflow-auto max-h-60 text-sm">
-            {JSON.stringify(scrapedData, null, 2)}
-          </pre>
+          <div className="space-y-2">
+            {scrapedData.status && (
+              <p className="text-sm">Status: {scrapedData.status}</p>
+            )}
+            {scrapedData.completed && (
+              <p className="text-sm">Pages Completed: {scrapedData.completed}</p>
+            )}
+            {scrapedData.total && (
+              <p className="text-sm">Total Pages: {scrapedData.total}</p>
+            )}
+            {scrapedData.creditsUsed && (
+              <p className="text-sm">Credits Used: {scrapedData.creditsUsed}</p>
+            )}
+            {scrapedData.data && (
+              <div className="mt-4">
+                <p className="font-semibold text-sm mb-2">Content:</p>
+                <pre className="bg-gray-100 p-2 rounded overflow-auto max-h-60 text-sm">
+                  {JSON.stringify(scrapedData.data, null, 2)}
+                </pre>
+              </div>
+            )}
+          </div>
         </Card>
       )}
     </div>
