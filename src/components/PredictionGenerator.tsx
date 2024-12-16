@@ -14,21 +14,28 @@ const PredictionGenerator = () => {
   const [previousPredictions, setPreviousPredictions] = useState<Prediction[]>([]);
   const { toast } = useToast();
 
-  // Historical patterns from recent draws
+  // Historical data from the images
   const historicalDraws = [
     {
-      numbers: [37, 32, 20, 41, 11, 34],
-      colors: ['red', 'blue', 'blue', 'blue', 'blue', 'red']
+      numbers: [20, 15, 35, 31, 25, 1],
+      colors: ['blue', 'green', 'blue', 'red', 'red', 'red']
     },
     {
-      numbers: [20, 29, 11, 12, 31, 19],
-      colors: ['blue', 'blue', 'blue', 'green', 'red', 'red']
+      numbers: [45, 17, 4, 28, 5, 39],
+      colors: ['green', 'blue', 'red', 'red', 'blue', 'green']
     },
     {
-      numbers: [22, 5, 20, 35, 46, 36],
-      colors: ['red', 'blue', 'blue', 'blue', 'red', 'green']
+      numbers: [27, 42, 26, 30, 41, 12],
+      colors: ['green', 'green', 'blue', 'green', 'blue', 'green']
     }
   ];
+
+  // Color frequency analysis from the statistics shown in images
+  const colorStats = {
+    red: { frequency: 0.33, lastDrawn: 0, streak: 2 },
+    blue: { frequency: 0.40, lastDrawn: 1, streak: 3 },
+    green: { frequency: 0.27, lastDrawn: 2, streak: 1 }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -44,56 +51,68 @@ const PredictionGenerator = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const analyzePatterns = () => {
-    // Analyze number patterns
-    const numberFrequencies: { [key: number]: number } = {};
-    const colorFrequencies: { [key: string]: number } = {};
-    const numberColorPairs: { [key: number]: string[] } = {};
+  const predictColor = () => {
+    // Calculate weighted probabilities based on frequency and recent patterns
+    const weights = {
+      red: colorStats.red.frequency * (1 + (colorStats.red.streak * 0.1)),
+      blue: colorStats.blue.frequency * (1 + (colorStats.blue.streak * 0.1)),
+      green: colorStats.green.frequency * (1 + (colorStats.green.streak * 0.1))
+    };
 
-    // Process historical data
+    // Adjust weights based on last appearance
+    Object.keys(weights).forEach(color => {
+      const stats = colorStats[color as keyof typeof colorStats];
+      weights[color as keyof typeof weights] *= Math.exp(-stats.lastDrawn * 0.1);
+    });
+
+    // Normalize weights
+    const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
+    const normalizedWeights = Object.entries(weights).map(([color, weight]) => ({
+      color,
+      probability: weight / totalWeight
+    }));
+
+    // Random selection based on weighted probabilities
+    const random = Math.random();
+    let cumulativeProbability = 0;
+    
+    for (const { color, probability } of normalizedWeights) {
+      cumulativeProbability += probability;
+      if (random <= cumulativeProbability) {
+        return color;
+      }
+    }
+
+    return normalizedWeights[0].color; // Fallback
+  };
+
+  const analyzePatterns = () => {
+    // Analyze number patterns from historical data
+    const numberFrequencies: { [key: number]: number } = {};
+    
     historicalDraws.forEach(draw => {
-      draw.numbers.forEach((num, idx) => {
+      draw.numbers.forEach(num => {
         numberFrequencies[num] = (numberFrequencies[num] || 0) + 1;
-        colorFrequencies[draw.colors[idx]] = (colorFrequencies[draw.colors[idx]] || 0) + 1;
-        
-        if (!numberColorPairs[num]) {
-          numberColorPairs[num] = [];
-        }
-        numberColorPairs[num].push(draw.colors[idx]);
       });
     });
 
-    // Calculate probabilities using Bayesian approach
-    const totalDraws = historicalDraws.length;
-    const numberProbabilities = Object.entries(numberFrequencies).map(([num, freq]) => ({
-      number: parseInt(num),
-      probability: freq / totalDraws,
-      colors: numberColorPairs[parseInt(num)]
-    }));
-
-    // Select numbers based on probabilities and patterns
+    // Select numbers based on frequency and patterns
     const selectedNumbers: number[] = [];
-    const usedPositions = new Set();
-
     while (selectedNumbers.length < 6) {
-      const availableNumbers = numberProbabilities
-        .filter(np => !selectedNumbers.includes(np.number))
-        .sort((a, b) => b.probability - a.probability);
+      const availableNumbers = Object.entries(numberFrequencies)
+        .filter(([num]) => !selectedNumbers.includes(parseInt(num)))
+        .sort((a, b) => b[1] - a[1]);
 
       if (availableNumbers.length === 0) break;
 
-      // Add some randomness to avoid getting stuck in patterns
+      // Add some randomness to selection
       const randomIndex = Math.floor(Math.random() * Math.min(3, availableNumbers.length));
-      selectedNumbers.push(availableNumbers[randomIndex].number);
+      selectedNumbers.push(parseInt(availableNumbers[randomIndex][0]));
     }
-
-    // Predict color based on historical color patterns for these numbers
-    const predictedColor = Object.entries(colorFrequencies)
-      .sort((a, b) => b[1] - a[1])[0][0];
 
     return {
       numbers: selectedNumbers,
-      color: predictedColor
+      color: predictColor()
     };
   };
 
@@ -101,7 +120,7 @@ const PredictionGenerator = () => {
     const newPrediction = analyzePatterns();
     
     setPrediction(newPrediction);
-    setPreviousPredictions(prev => [...prev, newPrediction]);
+    setPreviousPredictions(prev => [...prev, newPrediction].slice(-3));
     
     toast({
       title: "New Prediction Generated",
