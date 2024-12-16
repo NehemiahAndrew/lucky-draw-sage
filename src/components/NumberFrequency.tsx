@@ -5,9 +5,27 @@ import { Card } from '@/components/ui/card';
 const NumberFrequency = () => {
   // Color frequency data based on recent draws from the images
   const colorData = [
-    { color: 'Red', frequency: 12, lastAppearance: 0, probability: 35 },
-    { color: 'Blue', frequency: 15, lastAppearance: 1, probability: 40 },
-    { color: 'Green', frequency: 8, lastAppearance: 2, probability: 25 }
+    { 
+      color: 'Red', 
+      frequency: 15, 
+      lastAppearance: 0, 
+      probability: 62.2,
+      streak: 2
+    },
+    { 
+      color: 'Blue', 
+      frequency: 18, 
+      lastAppearance: 1, 
+      probability: 61.4,
+      streak: 4
+    },
+    { 
+      color: 'Green', 
+      frequency: 8, 
+      lastAppearance: 3, 
+      probability: 31.5,
+      streak: 1
+    }
   ];
 
   const processedData = colorData.map(item => ({
@@ -36,11 +54,11 @@ const NumberFrequency = () => {
         </Card>
         
         <Card className="p-4">
-          <h3 className="text-sm font-medium mb-2">Last Appearances</h3>
+          <h3 className="text-sm font-medium mb-2">Current Streaks</h3>
           <div className="text-sm space-y-1">
             {colorData.map((color, idx) => (
               <p key={idx}>
-                {color.color}: {color.lastAppearance} draws ago
+                {color.color}: {color.streak} consecutive
               </p>
             ))}
           </div>
@@ -72,7 +90,7 @@ const NumberFrequency = () => {
                     <Card className="p-2 bg-background border">
                       <p className="font-medium">Color: {data.color}</p>
                       <p>Frequency: {data.frequency}</p>
-                      <p>Last Appearance: {data.lastAppearance} draws ago</p>
+                      <p>Current Streak: {data.streak}</p>
                       <p>Probability: {data.probability}%</p>
                     </Card>
                   );

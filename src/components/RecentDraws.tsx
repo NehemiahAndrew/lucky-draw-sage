@@ -4,6 +4,19 @@ import { Card } from '@/components/ui/card';
 // Historical data from the provided image
 const recentDraws = [
   {
+    id: 4701741,
+    numbers: [
+      { value: 37, color: 'red' },
+      { value: 32, color: 'blue' },
+      { value: 20, color: 'blue' },
+      { value: 41, color: 'blue' },
+      { value: 11, color: 'blue' },
+      { value: 34, color: 'red' }
+    ],
+    rangeTotal: 175,
+    range: 'H'
+  },
+  {
     id: 4701739,
     numbers: [
       { value: 20, color: 'blue' },
@@ -27,19 +40,6 @@ const recentDraws = [
       { value: 36, color: 'green' }
     ],
     rangeTotal: 164,
-    range: 'H'
-  },
-  {
-    id: 4701737,
-    numbers: [
-      { value: 46, color: 'red' },
-      { value: 42, color: 'green' },
-      { value: 12, color: 'green' },
-      { value: 19, color: 'red' },
-      { value: 29, color: 'blue' },
-      { value: 45, color: 'green' }
-    ],
-    rangeTotal: 193,
     range: 'H'
   }
 ];
