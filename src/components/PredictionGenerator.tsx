@@ -1,18 +1,33 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from "@/components/ui/use-toast";
 
 const PredictionGenerator = () => {
   const [prediction, setPrediction] = useState<string | null>(null);
+  const [nextDrawTime, setNextDrawTime] = useState<number>(49);
   const { toast } = useToast();
 
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setNextDrawTime((prev) => {
+        if (prev <= 0) {
+          // Reset to 49 when it reaches 0
+          return 49;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, []);
+
   const generatePrediction = () => {
-    // Analysis based on recent patterns
+    // Analysis based on recent patterns from the provided images
     const colorPatterns = {
-      red: { frequency: 8, lastAppearance: 1, weight: 0.3 },
-      blue: { frequency: 12, lastAppearance: 0, weight: 0.4 },
-      green: { frequency: 10, lastAppearance: 2, weight: 0.3 }
+      red: { frequency: 12, lastAppearance: 0, weight: 0.35 },
+      blue: { frequency: 15, lastAppearance: 1, weight: 0.4 },
+      green: { frequency: 8, lastAppearance: 2, weight: 0.25 }
     };
 
     // Calculate probabilities based on frequency and last appearance
@@ -29,14 +44,17 @@ const PredictionGenerator = () => {
     
     toast({
       title: "New Prediction Generated",
-      description: `Based on recent patterns and frequency analysis`,
+      description: `Next draw in ${nextDrawTime} seconds`,
     });
   };
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
         <Button onClick={generatePrediction}>Generate Color Prediction</Button>
+        <div className="text-lg font-semibold">
+          Next Draw: {nextDrawTime}s
+        </div>
       </div>
       
       {prediction && (

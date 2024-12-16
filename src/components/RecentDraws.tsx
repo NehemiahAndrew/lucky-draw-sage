@@ -4,43 +4,42 @@ import { Card } from '@/components/ui/card';
 // Historical data from the provided image
 const recentDraws = [
   {
-    id: 4700263,
+    id: 4701739,
     numbers: [
-      { value: 47, color: 'blue' },
+      { value: 20, color: 'blue' },
       { value: 29, color: 'blue' },
-      { value: 27, color: 'green' },
-      { value: 4, color: 'red' },
-      { value: 14, color: 'blue' },
-      { value: 22, color: 'red' }
+      { value: 11, color: 'blue' },
+      { value: 12, color: 'green' },
+      { value: 31, color: 'red' },
+      { value: 19, color: 'red' }
     ],
-    rangeTotal: 143,
+    rangeTotal: 122,
     range: 'L'
   },
   {
-    id: 4700262,
+    id: 4701738,
     numbers: [
+      { value: 22, color: 'red' },
+      { value: 5, color: 'blue' },
       { value: 20, color: 'blue' },
-      { value: 47, color: 'blue' },
-      { value: 39, color: 'green' },
-      { value: 40, color: 'red' },
-      { value: 31, color: 'red' },
-      { value: 43, color: 'red' }
+      { value: 35, color: 'blue' },
+      { value: 46, color: 'red' },
+      { value: 36, color: 'green' }
     ],
-    rangeTotal: 220,
+    rangeTotal: 164,
     range: 'H'
   },
-  // ... Adding more historical draws
   {
-    id: 4700254,
+    id: 4701737,
     numbers: [
       { value: 46, color: 'red' },
-      { value: 30, color: 'green' },
-      { value: 44, color: 'blue' },
-      { value: 7, color: 'red' },
+      { value: 42, color: 'green' },
+      { value: 12, color: 'green' },
+      { value: 19, color: 'red' },
       { value: 29, color: 'blue' },
-      { value: 27, color: 'green' }
+      { value: 45, color: 'green' }
     ],
-    rangeTotal: 183,
+    rangeTotal: 193,
     range: 'H'
   }
 ];

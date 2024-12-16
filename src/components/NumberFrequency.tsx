@@ -1,20 +1,18 @@
 import React from 'react';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 import { Card } from '@/components/ui/card';
-import { calculateStatistics, calculateProbabilities } from '@/utils/statistics';
 
 const NumberFrequency = () => {
-  // Color frequency data based on recent draws
+  // Color frequency data based on recent draws from the images
   const colorData = [
-    { color: 'Red', frequency: 8, lastAppearance: 1 },
-    { color: 'Blue', frequency: 12, lastAppearance: 0 },
-    { color: 'Green', frequency: 10, lastAppearance: 2 }
+    { color: 'Red', frequency: 12, lastAppearance: 0, probability: 35 },
+    { color: 'Blue', frequency: 15, lastAppearance: 1, probability: 40 },
+    { color: 'Green', frequency: 8, lastAppearance: 2, probability: 25 }
   ];
 
   const processedData = colorData.map(item => ({
     ...item,
-    fill: item.color.toLowerCase(),
-    probability: (item.frequency / 30) * 100 // Simple probability calculation
+    fill: item.color.toLowerCase()
   }));
 
   return (
@@ -51,9 +49,9 @@ const NumberFrequency = () => {
         <Card className="p-4">
           <h3 className="text-sm font-medium mb-2">Probability Analysis</h3>
           <div className="text-sm space-y-1">
-            {processedData.map((item, idx) => (
+            {colorData.map((color, idx) => (
               <p key={idx}>
-                {item.color}: {item.probability.toFixed(1)}%
+                {color.color}: {color.probability}%
               </p>
             ))}
           </div>
@@ -75,7 +73,7 @@ const NumberFrequency = () => {
                       <p className="font-medium">Color: {data.color}</p>
                       <p>Frequency: {data.frequency}</p>
                       <p>Last Appearance: {data.lastAppearance} draws ago</p>
-                      <p>Probability: {data.probability.toFixed(1)}%</p>
+                      <p>Probability: {data.probability}%</p>
                     </Card>
                   );
                 }
