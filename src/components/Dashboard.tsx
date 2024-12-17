@@ -4,6 +4,9 @@ import ResultsTable from './ResultsTable';
 import NumberFrequency from './NumberFrequency';
 import PredictionGenerator from './PredictionGenerator';
 import RecentDraws from './RecentDraws';
+import FrequencyTracker from './FrequencyTracker';
+import TrendAnalysis from './TrendAnalysis';
+import HotColdNumbers from './HotColdNumbers';
 
 const Dashboard = () => {
   return (
@@ -20,6 +23,12 @@ const Dashboard = () => {
           <h2 className="text-xl font-semibold mb-4">Number Frequency</h2>
           <NumberFrequency />
         </Card>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <FrequencyTracker />
+        <TrendAnalysis />
+        <HotColdNumbers />
       </div>
 
       <Card className="p-6">
