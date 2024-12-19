@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useToast } from "@/components/ui/use-toast";
+import { findPatterns, predictNextColor, getPatternConfidence } from '@/utils/patternRecognition';
 
 interface ColorPrediction {
   color: string;
@@ -14,11 +15,11 @@ const PredictionGenerator = () => {
   const [previousPredictions, setPreviousPredictions] = useState<ColorPrediction[]>([]);
   const { toast } = useToast();
 
-  // Historical color data
+  // Historical color data (most recent first)
   const historicalColors = [
-    { color: 'red', frequency: 15, lastDrawn: 0, streak: 2 },
-    { color: 'blue', frequency: 18, lastDrawn: 1, streak: 3 },
-    { color: 'green', frequency: 8, lastDrawn: 2, streak: 1 }
+    'red', 'blue', 'green', 'blue', 'red',
+    'blue', 'red', 'green', 'blue', 'blue',
+    'red', 'green', 'blue', 'red', 'blue'
   ];
 
   useEffect(() => {
@@ -35,47 +36,26 @@ const PredictionGenerator = () => {
     return () => clearInterval(timer);
   }, []);
 
-  const predictColor = () => {
-    // Calculate weighted probabilities based on frequency and patterns
-    const weights = historicalColors.reduce((acc, color) => ({
-      ...acc,
-      [color.color]: color.frequency * (1 + (color.streak * 0.1)) * Math.exp(-color.lastDrawn * 0.1)
-    }), {} as Record<string, number>);
-
-    // Normalize weights
-    const totalWeight = Object.values(weights).reduce((a, b) => a + b, 0);
-    const normalizedWeights = Object.entries(weights).map(([color, weight]) => ({
-      color,
-      probability: (weight / totalWeight) * 100
-    }));
-
-    // Random selection based on weighted probabilities
-    const random = Math.random();
-    let cumulativeProbability = 0;
-    
-    for (const { color, probability } of normalizedWeights) {
-      cumulativeProbability += probability / 100;
-      if (random <= cumulativeProbability) {
-        return { color, probability };
-      }
-    }
-
-    return normalizedWeights[0];
-  };
-
   const generatePrediction = () => {
-    const newPrediction = predictColor();
+    const predictedColor = predictNextColor(historicalColors);
+    const patterns = findPatterns(historicalColors);
+    const confidence = getPatternConfidence(patterns, predictedColor);
+    
+    const newPrediction = {
+      color: predictedColor,
+      probability: confidence
+    };
     
     setPrediction(newPrediction);
     setPreviousPredictions(prev => [...prev, newPrediction].slice(-3));
     
     toast({
       title: "New Color Prediction Generated",
-      description: `Predicted color: ${newPrediction.color} (${newPrediction.probability.toFixed(2)}% probability)`,
+      description: `Predicted color: ${predictedColor} (${confidence.toFixed(2)}% confidence)`,
     });
 
     console.log('Generated color prediction:', newPrediction);
-    console.log('Previous predictions:', previousPredictions);
+    console.log('Patterns found:', patterns);
   };
 
   return (
@@ -101,13 +81,13 @@ const PredictionGenerator = () => {
             <div>
               <p className="font-semibold capitalize">{prediction.color}</p>
               <p className="text-sm text-muted-foreground">
-                {prediction.probability.toFixed(2)}% probability
+                {prediction.probability.toFixed(2)}% confidence
               </p>
             </div>
           </div>
           
           <p className="mt-4 text-sm text-muted-foreground">
-            Prediction based on historical color patterns and frequency analysis
+            Prediction based on pattern recognition and historical analysis
           </p>
           
           <div className="mt-4">
